@@ -115,6 +115,16 @@ public extension UIView {
         } catch {}
     }
     
+    func makeToast(_ message: String?, duration: TimeInterval = ToastManager.shared.duration, style: ToastStyle = ToastManager.shared.style) {
+           do {
+               let anchor =  CGPoint(x: self.frame.width/2 , y: 100)
+               let toast = try toastViewForMessage(message, title: "", image: UIImage.init(named: "ic_error"), style: style)
+               showToast(toast, duration: duration, point: anchor, completion: nil)
+           } catch ToastError.missingParameters {
+               print("Error: message, title, and image cannot all be nil")
+           } catch {}
+    }
+    
     /**
      Creates a new toast view and presents it at a given center point.
      
@@ -423,6 +433,8 @@ public extension UIView {
         
         let wrapperView = UIView()
         wrapperView.backgroundColor = style.backgroundColor
+        wrapperView.layer.borderWidth = 1.0
+        wrapperView.layer.borderColor = UIColor.red.cgColor
         wrapperView.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
         wrapperView.layer.cornerRadius = style.cornerRadius
         
@@ -486,12 +498,12 @@ public extension UIView {
   
         var titleRect = CGRect.zero
         
-        if let titleLabel = titleLabel {
-            titleRect.origin.x = imageRect.origin.x + imageRect.size.width + style.horizontalPadding
-            titleRect.origin.y = style.verticalPadding
-            titleRect.size.width = titleLabel.bounds.size.width
-            titleRect.size.height = titleLabel.bounds.size.height
-        }
+//        if let titleLabel = titleLabel {
+//            titleRect.origin.x = imageRect.origin.x + imageRect.size.width + style.horizontalPadding
+//            titleRect.origin.y = style.verticalPadding
+//            titleRect.size.width = titleLabel.bounds.size.width
+//            titleRect.size.height = titleLabel.bounds.size.height
+//        }
         
         var messageRect = CGRect.zero
         
@@ -509,11 +521,11 @@ public extension UIView {
         
         wrapperView.frame = CGRect(x: 0.0, y: 0.0, width: wrapperWidth, height: wrapperHeight)
         
-        if let titleLabel = titleLabel {
-            titleRect.size.width = longerWidth
-            titleLabel.frame = titleRect
-            wrapperView.addSubview(titleLabel)
-        }
+//        if let titleLabel = titleLabel {
+//            titleRect.size.width = longerWidth
+//            titleLabel.frame = titleRect
+//            wrapperView.addSubview(titleLabel)
+//        }
         
         if let messageLabel = messageLabel {
             messageRect.size.width = longerWidth
@@ -522,6 +534,7 @@ public extension UIView {
         }
         
         if let imageView = imageView {
+            imageView.center = CGPoint(x: imageView.center.x, y:wrapperView.center.y)
             wrapperView.addSubview(imageView)
         }
         
@@ -549,17 +562,17 @@ public struct ToastStyle {
     /**
      The background color. Default is `.black` at 80% opacity.
     */
-    public var backgroundColor: UIColor = UIColor.black.withAlphaComponent(0.8)
+    public var backgroundColor: UIColor = UIColor(red: 248.0/255.0, green: 219.0/255.0, blue: 219.0/255.0, alpha: 1.0)
     
     /**
      The title color. Default is `UIColor.whiteColor()`.
     */
-    public var titleColor: UIColor = .white
+    public var titleColor: UIColor = .black
     
     /**
      The message color. Default is `.white`.
     */
-    public var messageColor: UIColor = .white
+    public var messageColor: UIColor = .black
     
     /**
      A percentage value from 0.0 to 1.0, representing the maximum width of the toast
@@ -665,7 +678,7 @@ public struct ToastStyle {
     /**
      The image size. The default is 80 x 80.
     */
-    public var imageSize = CGSize(width: 80.0, height: 80.0)
+    public var imageSize = CGSize(width: 30.0, height: 23.8)
     
     /**
      The size of the toast activity view when `makeToastActivity(position:)` is called.
